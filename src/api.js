@@ -5,22 +5,28 @@ import { retryWithBackoff } from './utils.js';
 /**
  * Call NVIDIA AI API
  */
-export async function callNvidiaAPI(messages, tools = null, toolChoice = 'auto') {
+export async function callNvidiaAPI(messages, tools = null, toolChoice = null) {
+  const requestBody = {
+    model: CONFIG.NVIDIA_MODEL,
+    messages: messages,
+    temperature: CONFIG.AI_TEMPERATURE,
+    max_tokens: CONFIG.AI_MAX_TOKENS,
+    top_p: CONFIG.AI_TOP_P,
+    stream: false,
+  };
+
+  // Only add tools and tool_choice if tools are provided
+  if (tools && tools.length > 0) {
+    requestBody.tools = tools;
+    requestBody.tool_choice = toolChoice || 'auto';
+  }
+
   const response = await fetch(CONFIG.NVIDIA_API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      model: CONFIG.NVIDIA_MODEL,
-      messages: messages,
-      tools: tools,
-      tool_choice: toolChoice,
-      temperature: CONFIG.AI_TEMPERATURE,
-      max_tokens: CONFIG.AI_MAX_TOKENS,
-      top_p: CONFIG.AI_TOP_P,
-      stream: false,
-    }),
+    body: JSON.stringify(requestBody),
   });
 
   if (!response.ok) {

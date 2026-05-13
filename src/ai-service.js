@@ -161,8 +161,8 @@ async function processToolCalls(responseMessage, messages) {
     },
   ];
 
-  // Get final response from AI
-  const secondData = await callNvidiaAPI(finalMessages);
+  // Get final response from AI (without tools this time)
+  const secondData = await callNvidiaAPI(finalMessages, null, null);
   let finalAiResponse = secondData.choices[0]?.message?.content || '';
 
   // Fallback if model still tries to call tools
