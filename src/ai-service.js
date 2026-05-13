@@ -155,10 +155,6 @@ async function processToolCalls(responseMessage, messages) {
     ...messages,
     responseMessage,
     ...toolMessages,
-    {
-      role: 'system',
-      content: 'Tool execution complete. Now generate your final text response to the user. Do NOT call any more tools in this turn.',
-    },
   ];
 
   // Get final response from AI (without tools this time)
@@ -167,7 +163,7 @@ async function processToolCalls(responseMessage, messages) {
 
   // Fallback if model still tries to call tools
   if (!finalAiResponse && secondData.choices[0]?.message?.tool_calls) {
-    finalAiResponse = 'I\'ve pulled up some information for you. Let me know if you need any adjustments!';
+    finalAiResponse = 'I\'ve pulled up the information for you. Let me know if you need anything else!';
   }
 
   // Add special tags for UI rendering
