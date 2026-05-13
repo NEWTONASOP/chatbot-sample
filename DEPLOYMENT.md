@@ -17,29 +17,27 @@ npm run build
 
 #### 2. Deploy to Cloudflare Pages
 
-**Option A: Using Wrangler CLI (Fastest)**
-```bash
-# First time setup
-npx wrangler login
-
-# Deploy
-npm run deploy
-
-# Follow the prompts to create a new Pages project
-```
-
-**Option B: Using Cloudflare Dashboard (Recommended for Git integration)**
+**Option A: Using Cloudflare Dashboard (Recommended for Git integration)**
 
 1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/)
 2. Navigate to **Pages** → **Create a project**
 3. Connect your Git repository (GitHub/GitLab)
 4. Configure build settings:
+   - **Framework preset**: `None` (this is vanilla JS, not React)
    - **Build command**: `npm run build`
    - **Build output directory**: `dist`
    - **Root directory**: `/` (leave empty)
+   - **Node version**: `18` or higher (set in Environment variables if needed)
 5. Click **Save and Deploy**
 
-#### 3. Configure Environment Variables
+#### 3. Configure Build Settings (if using Dashboard)
+
+If Cloudflare doesn't auto-detect the settings, manually set:
+- **Framework preset**: `None` (this is vanilla JavaScript with Vite as build tool)
+- **Build command**: `npm run build`
+- **Build output directory**: `dist`
+
+#### 4. Configure Environment Variables
 
 After deployment, add your API keys:
 
@@ -55,7 +53,19 @@ After deployment, add your API keys:
 4. Click **Save**
 5. Redeploy your project (Settings → Deployments → Retry deployment)
 
-#### 4. Test Your Deployment
+**Option B: Using Wrangler CLI**
+```bash
+# First time setup
+npx wrangler login
+
+# Deploy (creates a new project on first run)
+npx wrangler pages deploy dist --project-name=travel-ai-chatbot
+
+# For subsequent deployments
+npm run deploy
+```
+
+#### 5. Test Your Deployment
 
 Visit your Pages URL (e.g., `https://travel-ai-chatbot.pages.dev`) and test:
 - ✅ Chat functionality
