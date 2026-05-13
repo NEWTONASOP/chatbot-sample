@@ -1,36 +1,41 @@
-// Cloudflare Worker function to proxy NVIDIA API requests securely
+// Cloudflare Worker function to proxy Pexels API requests securely
 export async function onRequest(context: any) {
   const { request, env } = context;
 
-  // Only allow POST requests
-  if (request.method !== 'POST') {
+  if (request.method !== 'GET') {
     return new Response('Method not allowed', { status: 405 });
   }
 
-  // CORS headers
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   };
 
-  // Handle preflight
   if (request.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const body = await request.json();
+    const url = new URL(request.url);
+    const query = url.searchParams.get('query');
+    const perPage = url.searchParams.get('per_page') || '4';
 
-    // Forward to NVIDIA API
-    const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${env.NVIDIA_API_KEY}`,
-      },
-      body: JSON.stringify(body),
-    });
+    if (!query) {
+      return new Response(JSON.stringify({ error: 'Query parameter required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const response = await fetch(
+      `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${perPage}&orientation=landscape`,
+      {
+        headers: {
+          Authorization: env.PEXELS_API_KEY,
+        },
+      }
+    );
 
     const data = await response.json();
 
