@@ -1,7 +1,4 @@
-const NVIDIA_API_KEY = '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';
-const NVIDIA_INVOKE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-  ? '/v1/nvidia/chat/completions' 
-  : 'https://integrate.api.nvidia.com/v1/chat/completions';
+const NVIDIA_INVOKE_URL = '/v1/nvidia/chat/completions';
 const NVIDIA_MODEL = "mistralai/ministral-14b-instruct-2512";
 const CALCOM_API_KEY = 'YOUR_CALCOM_API_KEY'; // Replace with actual API key
 const CALCOM_EVENT_TYPE_ID = 'YOUR_EVENT_TYPE_ID'; // Replace with actual Event Type ID
@@ -394,8 +391,7 @@ CRITICAL RULES:
     const response = await fetch(NVIDIA_INVOKE_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${NVIDIA_API_KEY}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: NVIDIA_MODEL,
@@ -524,8 +520,7 @@ CRITICAL RULES:
       const secondResponse = await fetch(NVIDIA_INVOKE_URL, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${NVIDIA_API_KEY}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           model: NVIDIA_MODEL,
