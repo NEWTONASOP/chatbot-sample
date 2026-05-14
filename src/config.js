@@ -28,7 +28,7 @@ export const CONFIG = {
   
   // Feature flags
   ENABLE_TIMESTAMPS: true,
-  ENABLE_MESSAGE_COPY: true,
+  ENABLE_MESSAGE_COPY: false,
   ENABLE_OFFLINE_DETECTION: true,
   ENABLE_ACCESSIBILITY: true,
 };

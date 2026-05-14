@@ -13,3 +13,4 @@ node_modules
 # Wrangler
 .wrangler/
 wrangler.toml.backup
+dist
