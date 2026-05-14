@@ -1,5 +1,5 @@
 // AI service for handling conversations and tool calls
-import { callNvidiaAPI, fetchDestinationImages, getAvailableSlots, bookMeeting } from './api.js';
+import { callGroqAPI, fetchDestinationImages, getAvailableSlots, bookMeeting } from './api.js';
 import { CONFIG } from './config.js';
 
 /**
@@ -158,7 +158,7 @@ async function processToolCalls(responseMessage, messages) {
   ];
 
   // Get final response from AI (without tools this time)
-  const secondData = await callNvidiaAPI(finalMessages, null, null);
+  const secondData = await callGroqAPI(finalMessages, null, null);
   let finalAiResponse = secondData.choices[0]?.message?.content || '';
 
   // Fallback if model still tries to call tools
@@ -227,7 +227,7 @@ export async function getAIResponse(userMessage, chatHistory) {
   const messages = [SYSTEM_PROMPT, ...chatHistory];
 
   // Call AI API
-  const data = await callNvidiaAPI(messages, TOOLS, 'auto');
+  const data = await callGroqAPI(messages, TOOLS, 'auto');
   const responseMessage = data.choices[0]?.message;
 
   // Sanitize response (remove reasoning field if present)

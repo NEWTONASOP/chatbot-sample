@@ -3,11 +3,11 @@ import { CONFIG } from './config.js';
 import { retryWithBackoff } from './utils.js';
 
 /**
- * Call NVIDIA AI API
+ * Call Groq AI API
  */
-export async function callNvidiaAPI(messages, tools = null, toolChoice = null) {
+export async function callGroqAPI(messages, tools = null, toolChoice = null) {
   const requestBody = {
-    model: CONFIG.NVIDIA_MODEL,
+    model: CONFIG.GROQ_MODEL,
     messages: messages,
     temperature: CONFIG.AI_TEMPERATURE,
     max_tokens: CONFIG.AI_MAX_TOKENS,
@@ -21,7 +21,7 @@ export async function callNvidiaAPI(messages, tools = null, toolChoice = null) {
     requestBody.tool_choice = toolChoice || 'auto';
   }
 
-  const response = await fetch(CONFIG.NVIDIA_API_URL, {
+  const response = await fetch(CONFIG.GROQ_API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ export async function callNvidiaAPI(messages, tools = null, toolChoice = null) {
   });
 
   if (!response.ok) {
-    let errorMessage = 'NVIDIA API Error';
+    let errorMessage = 'Groq API Error';
     try {
       const errorData = await response.json();
       errorMessage = errorData.error?.message || errorMessage;
