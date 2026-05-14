@@ -7,7 +7,7 @@ export const CONFIG = {
   CALCOM_BOOKINGS_URL: '/v1/calcom/bookings',
   
   // Model configuration
-  GROQ_MODEL: 'llama-3.3-70b-versatile',
+  GROQ_MODEL: 'llama-3.3-70b-versatile', // Alternative: 'llama-3.1-70b-versatile' or 'mixtral-8x7b-32768'
   
   // Cal.com configuration
   CALCOM_USERNAME: 'Deteroid/deteroid-meeting',

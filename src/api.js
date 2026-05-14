@@ -18,7 +18,9 @@ export async function callGroqAPI(messages, tools = null, toolChoice = null) {
   // Only add tools and tool_choice if tools are provided
   if (tools && tools.length > 0) {
     requestBody.tools = tools;
-    requestBody.tool_choice = toolChoice || 'auto';
+    if (toolChoice) {
+      requestBody.tool_choice = toolChoice;
+    }
   }
 
   const response = await fetch(CONFIG.GROQ_API_URL, {
@@ -33,7 +35,8 @@ export async function callGroqAPI(messages, tools = null, toolChoice = null) {
     let errorMessage = 'Groq API Error';
     try {
       const errorData = await response.json();
-      errorMessage = errorData.error?.message || errorMessage;
+      console.error('Groq API Error Details:', errorData);
+      errorMessage = errorData.error?.message || JSON.stringify(errorData);
     } catch (e) {
       errorMessage = `Server Error: ${response.status} ${response.statusText}`;
     }

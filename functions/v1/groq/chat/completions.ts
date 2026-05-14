@@ -22,6 +22,9 @@ export async function onRequest(context: any) {
   try {
     const body = await request.json();
 
+    // Log request for debugging (remove in production)
+    console.log('Groq API Request:', JSON.stringify(body, null, 2));
+
     // Forward to Groq API
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -34,6 +37,11 @@ export async function onRequest(context: any) {
 
     const data = await response.json();
 
+    // Log response for debugging (remove in production)
+    if (!response.ok) {
+      console.error('Groq API Error:', JSON.stringify(data, null, 2));
+    }
+
     return new Response(JSON.stringify(data), {
       status: response.status,
       headers: {
@@ -42,6 +50,7 @@ export async function onRequest(context: any) {
       },
     });
   } catch (error: any) {
+    console.error('Worker Error:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: {

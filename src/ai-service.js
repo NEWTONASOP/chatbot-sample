@@ -157,8 +157,8 @@ async function processToolCalls(responseMessage, messages) {
     ...toolMessages,
   ];
 
-  // Get final response from AI (without tools this time)
-  const secondData = await callGroqAPI(finalMessages, null, null);
+  // Get final response from AI (pass tools again for Groq compatibility)
+  const secondData = await callGroqAPI(finalMessages, TOOLS, null);
   let finalAiResponse = secondData.choices[0]?.message?.content || '';
 
   // Fallback if model still tries to call tools
@@ -226,7 +226,7 @@ export async function getAIResponse(userMessage, chatHistory) {
   // Prepare messages for API
   const messages = [SYSTEM_PROMPT, ...chatHistory];
 
-  // Call AI API
+  // Call AI API with tools
   const data = await callGroqAPI(messages, TOOLS, 'auto');
   const responseMessage = data.choices[0]?.message;
 
