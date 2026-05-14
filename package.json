@@ -4,10 +4,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "wrangler dev",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "npm run build && wrangler pages deploy dist --project-name=travel-ai-chatbot"
+    "deploy": "npm run build && wrangler deploy"
   },
   "devDependencies": {
     "vite": "^6.1.0",
