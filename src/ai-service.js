@@ -22,7 +22,7 @@ CRITICAL RULES:
    Always clarify that these are starting prices excluding flights, and encourage booking a consultation for exact quotes.
 6. Contact: ${CONFIG.CONTACT_PHONE} (Call/WhatsApp). You can offer to schedule a consultation, but DO NOT show the calendar unless the user explicitly says they want to book or schedule a meeting.
 7. CRITICAL REQUIREMENT FOR SCHEDULING: You MUST call the "show_calendar_ui" tool IMMEDIATELY whenever the user asks to "book a meeting", "schedule a call", or "see the calendar". Do not just say you will schedule it; you are REQUIRED to trigger the tool!
-8. Also show IMAGES: You MUST call the "show_destination_images" tool EVERY SINGLE TIME you recommend or discuss a specific travel destination, city, or resort. If you mention a place like 'Paris', 'Bali', or 'Maldives' or anything, you are REQUIRED to trigger the image tool for it so the user can see it. Do not skip this!`,
+8. Also show IMAGES: You MUST call the "show_destination_images" tool EVERY SINGLE TIME you recommend or discuss a specific travel destination, city, or resort. If you mention a place like 'Paris', 'Bali', or 'Maldives' or anything, you are REQUIRED to trigger the image tool for it so the user can see it. Ensure you use the proper tool calling format and do not append JSON arguments to the tool name.`,
 };
 
 /**
