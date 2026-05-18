@@ -37,9 +37,9 @@ const TOOLS = [
       parameters: {
         type: 'object',
         properties: {
-          destination: { 
-            type: 'string', 
-            description: 'The name of the destination (e.g., "Maldives", "Paris", "Tokyo", "Swiss Alps")' 
+          destination: {
+            type: 'string',
+            description: 'The name of the destination (e.g., "Maldives", "Paris", "Tokyo", "Swiss Alps")'
           },
         },
         required: ['destination'],
@@ -51,10 +51,10 @@ const TOOLS = [
     function: {
       name: 'show_calendar_ui',
       description: 'Shows the visual interactive calendar widget to the user. ONLY call this when the user EXPLICITLY asks to schedule a meeting, book a consultation, or see the calendar. NEVER call this proactively without the user\'s direct request to book.',
-      parameters: { 
-        type: 'object', 
-        properties: {}, 
-        required: [] 
+      parameters: {
+        type: 'object',
+        properties: {},
+        required: []
       },
     },
   },
@@ -141,7 +141,7 @@ async function processToolCalls(responseMessage, messages) {
   // Execute all tool calls
   for (const toolCall of responseMessage.tool_calls) {
     const functionResult = await executeTool(toolCall, toolImageUrls);
-    
+
     toolMessages.push({
       role: 'tool',
       tool_call_id: toolCall.id,
@@ -197,19 +197,19 @@ async function processToolCalls(responseMessage, messages) {
  */
 function getContextualQuickReplies(response, historyLength) {
   const lowerResponse = response.toLowerCase();
-  
+
   if (lowerResponse.includes('destination') || lowerResponse.includes('recommend')) {
     return ['Tell me more', 'Show other options', 'Book a consultation'];
   }
-  
+
   if (lowerResponse.includes('price') || lowerResponse.includes('cost')) {
     return ['Schedule a call', 'Show budget options', 'Tell me more'];
   }
-  
+
   if (historyLength <= 4) {
     return ['Show me destinations', 'Help plan a trip', 'Talk to an agent'];
   }
-  
+
   return [];
 }
 
@@ -248,9 +248,17 @@ export async function getAIResponse(userMessage, chatHistory) {
     historyUpdates = [responseMessage];
   }
 
-  // Add all updates to history
-  historyUpdates.forEach(msg => chatHistory.push(msg));
-  
+  // Add all updates to history (sanitize to avoid null content or stale tool_calls)
+  historyUpdates.forEach(msg => {
+    const sanitized = { ...msg };
+    // Ensure assistant messages always have a string content and no lingering tool_calls
+    if (sanitized.role === 'assistant') {
+      sanitized.content = sanitized.content || '';
+      delete sanitized.tool_calls;
+    }
+    chatHistory.push(sanitized);
+  });
+
   // Add final response to history
   chatHistory.push({
     role: 'assistant',
@@ -281,7 +289,6 @@ Where would you like to go? I can help with destinations, pricing, bookings, or 
 export function getInitialQuickReplies() {
   return [
     'Plan a 7-day luxury trip to Europe',
-    'What are your packages for the Maldives?',
     'Show me trending destinations',
     'I want to schedule a consultation',
   ];

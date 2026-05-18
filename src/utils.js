@@ -87,6 +87,7 @@ export function extractTags(text) {
       urls: match[2].split(','),
     });
   }
+  imageRegexWithUrls.lastIndex = 0;
   tags.cleanText = tags.cleanText.replace(imageRegexWithUrls, '').trim();
 
   // Extract image tags without URLs (fallback)
@@ -97,6 +98,7 @@ export function extractTags(text) {
       urls: [],
     });
   }
+  imageRegexFallback.lastIndex = 0;
   tags.cleanText = tags.cleanText.replace(imageRegexFallback, '').trim();
 
   return tags;
