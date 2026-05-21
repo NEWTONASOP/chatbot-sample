@@ -1,13 +1,13 @@
 // Configuration for the chatbot
 export const CONFIG = {
   // API endpoints (now proxied through Cloudflare Workers for security)
-  GROQ_API_URL: '/v1/groq/chat/completions',
+  AI_API_URL: '/v1/openrouter/chat/completions',
   PEXELS_API_URL: '/v1/pexels/search',
   CALCOM_SLOTS_URL: '/v1/calcom/slots',
   CALCOM_BOOKINGS_URL: '/v1/calcom/bookings',
 
   // Model configuration
-  GROQ_MODEL: 'llama-3.3-70b-versatile', // Alternative: 'llama-3.3-70b-versatile' or 'mixtral-8x7b-32768'
+  AI_MODEL: 'arcee-ai/trinity-large-thinking:free',
 
   // Cal.com configuration
   CALCOM_USERNAME: 'Deteroid/deteroid-meeting',
@@ -28,7 +28,7 @@ export const CONFIG = {
 
   // Feature flags
   ENABLE_TIMESTAMPS: true,
-  ENABLE_MESSAGE_COPY: false,
+  ENABLE_MESSAGE_COPY: true,
   ENABLE_OFFLINE_DETECTION: true,
   ENABLE_ACCESSIBILITY: true,
 };

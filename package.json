@@ -4,12 +4,15 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "vite",
+    "dev:backend": "wrangler dev",
     "build": "vite build",
     "preview": "vite preview",
     "deploy": "npm run build && wrangler deploy"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "vite": "^6.1.0",
     "wrangler": "^4.90.1"
   }

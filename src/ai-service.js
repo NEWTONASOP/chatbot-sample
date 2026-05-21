@@ -1,5 +1,5 @@
 // AI service for handling conversations and tool calls
-import { callGroqAPI, fetchDestinationImages, getAvailableSlots, bookMeeting } from './api.js';
+import { callAIAPI, fetchDestinationImages, getAvailableSlots, bookMeeting } from './api.js';
 import { CONFIG } from './config.js';
 
 /**
@@ -92,6 +92,14 @@ const TOOLS = [
 ];
 
 /**
+ * Strip <think>...</think> blocks from thinking model responses
+ */
+function stripThinkingBlocks(text) {
+  if (!text) return '';
+  return text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+}
+
+/**
  * Execute a tool call
  */
 async function executeTool(toolCall, toolImageUrls) {
@@ -157,12 +165,12 @@ async function processToolCalls(responseMessage, messages) {
     ...toolMessages,
   ];
 
-  // Get final response from AI (pass tools again for Groq compatibility)
-  const secondData = await callGroqAPI(finalMessages, TOOLS, null);
-  let finalAiResponse = secondData.choices[0]?.message?.content || '';
+  // Get final response from AI
+  const secondData = await callAIAPI(finalMessages, TOOLS, null);
+  let finalAiResponse = stripThinkingBlocks(secondData.choices[0]?.message?.content) || '';
 
-  // Fallback if model still tries to call tools
-  if (!finalAiResponse && secondData.choices[0]?.message?.tool_calls) {
+  // Fallback if model returned empty content or still tries to call tools
+  if (!finalAiResponse) {
     finalAiResponse = 'I\'ve pulled up the information for you. Let me know if you need anything else!';
   }
 
@@ -227,7 +235,7 @@ export async function getAIResponse(userMessage, chatHistory) {
   const messages = [SYSTEM_PROMPT, ...chatHistory];
 
   // Call AI API with tools
-  const data = await callGroqAPI(messages, TOOLS, 'auto');
+  const data = await callAIAPI(messages, TOOLS, 'auto');
   const responseMessage = data.choices[0]?.message;
 
   // Sanitize response (remove reasoning field if present)
@@ -244,7 +252,8 @@ export async function getAIResponse(userMessage, chatHistory) {
     finalResponse = result.response;
     historyUpdates = result.messages;
   } else {
-    finalResponse = responseMessage?.content || 'I\'m having trouble connecting right now. Please try again!';
+    // Strip thinking blocks for display only
+    finalResponse = stripThinkingBlocks(responseMessage?.content) || 'I\'m having trouble connecting right now. Please try again!';
     historyUpdates = [responseMessage];
   }
 

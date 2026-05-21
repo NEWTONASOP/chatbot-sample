@@ -34,6 +34,10 @@ async function handleAPIRoute(request, env, url) {
       return await handleGroqAPI(request, env, corsHeaders);
     }
     
+    if (url.pathname === '/v1/openrouter/chat/completions') {
+      return await handleOpenRouterAPI(request, env, corsHeaders);
+    }
+    
     if (url.pathname === '/v1/pexels/search') {
       return await handlePexelsAPI(request, env, corsHeaders);
     }
@@ -68,6 +72,33 @@ async function handleGroqAPI(request, env, corsHeaders) {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${env.GROQ_API_KEY}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  const data = await response.json();
+
+  return new Response(JSON.stringify(data), {
+    status: response.status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
+// OpenRouter API handler
+async function handleOpenRouterAPI(request, env, corsHeaders) {
+  if (request.method !== 'POST') {
+    return new Response('Method not allowed', { status: 405, headers: corsHeaders });
+  }
+
+  const body = await request.json();
+
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${env.OPENROUTER_API_KEY}`,
+      'HTTP-Referer': env.SITE_URL || 'https://travel-ai-chatbot.pages.dev',
+      'X-Title': 'Travel AI Chatbot',
     },
     body: JSON.stringify(body),
   });

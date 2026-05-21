@@ -3,11 +3,11 @@ import { CONFIG } from './config.js';
 import { retryWithBackoff } from './utils.js';
 
 /**
- * Call Groq AI API
+ * Call OpenRouter AI API
  */
-export async function callGroqAPI(messages, tools = null, toolChoice = null) {
+export async function callAIAPI(messages, tools = null, toolChoice = null) {
   const requestBody = {
-    model: CONFIG.GROQ_MODEL,
+    model: CONFIG.AI_MODEL,
     messages: messages,
     temperature: CONFIG.AI_TEMPERATURE,
     max_tokens: CONFIG.AI_MAX_TOKENS,
@@ -23,7 +23,7 @@ export async function callGroqAPI(messages, tools = null, toolChoice = null) {
     }
   }
 
-  const response = await fetch(CONFIG.GROQ_API_URL, {
+  const response = await fetch(CONFIG.AI_API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -32,10 +32,10 @@ export async function callGroqAPI(messages, tools = null, toolChoice = null) {
   });
 
   if (!response.ok) {
-    let errorMessage = 'Groq API Error';
+    let errorMessage = 'AI API Error';
     try {
       const errorData = await response.json();
-      console.error('Groq API Error Details:', errorData);
+      console.error('AI API Error Details:', errorData);
       errorMessage = errorData.error?.message || JSON.stringify(errorData);
     } catch (e) {
       errorMessage = `Server Error: ${response.status} ${response.statusText}`;
@@ -43,7 +43,8 @@ export async function callGroqAPI(messages, tools = null, toolChoice = null) {
     throw new Error(errorMessage);
   }
 
-  return await response.json();
+  const data = await response.json();
+  return data;
 }
 
 /**
