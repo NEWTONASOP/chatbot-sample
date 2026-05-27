@@ -7,7 +7,7 @@ export const CONFIG = {
   CALCOM_BOOKINGS_URL: '/v1/calcom/bookings',
 
   // Model configuration
-  AI_MODEL: 'arcee-ai/trinity-large-thinking:free',
+  AI_MODEL: 'openai/gpt-oss-120b:free',
 
   // Cal.com configuration
   CALCOM_USERNAME: 'Deteroid/deteroid-meeting',
