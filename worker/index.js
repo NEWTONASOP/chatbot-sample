@@ -34,6 +34,10 @@ async function handleAPIRoute(request, env, url) {
       return await handleGroqAPI(request, env, corsHeaders);
     }
     
+    if (url.pathname === '/v1/requesty/chat/completions') {
+      return await handleRequestyAPI(request, env, corsHeaders);
+    }
+    
     if (url.pathname === '/v1/openrouter/chat/completions') {
       return await handleOpenRouterAPI(request, env, corsHeaders);
     }
@@ -57,6 +61,54 @@ async function handleAPIRoute(request, env, url) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
+}
+
+// Requesty API handler (OpenAI-compatible gateway)
+async function handleRequestyAPI(request, env, corsHeaders) {
+  if (request.method !== 'POST') {
+    return new Response('Method not allowed', { status: 405, headers: corsHeaders });
+  }
+
+  if (!env.REQUESTY_API_KEY) {
+    return new Response(JSON.stringify({ error: 'Missing REQUESTY_API_KEY' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const body = await request.json();
+
+  const response = await fetch('https://router.requesty.ai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${env.REQUESTY_API_KEY}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  // If a client requests streaming, forward SSE through without parsing JSON.
+  if (body && body.stream) {
+    return new Response(response.body, {
+      status: response.status,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': response.headers.get('Content-Type') || 'text/event-stream',
+      },
+    });
+  }
+
+  let data = null;
+  try {
+    data = await response.json();
+  } catch {
+    data = { error: `Requesty returned ${response.status}` };
+  }
+
+  return new Response(JSON.stringify(data), {
+    status: response.status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
 }
 
 // Groq API handler

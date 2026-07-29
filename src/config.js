@@ -1,13 +1,16 @@
 // Configuration for the chatbot
 export const CONFIG = {
   // API endpoints (now proxied through Cloudflare Workers for security)
-  AI_API_URL: '/v1/openrouter/chat/completions',
+  AI_API_URL: '/v1/requesty/chat/completions',
   PEXELS_API_URL: '/v1/pexels/search',
   CALCOM_SLOTS_URL: '/v1/calcom/slots',
   CALCOM_BOOKINGS_URL: '/v1/calcom/bookings',
 
   // Model configuration
-  AI_MODEL: 'openai/gpt-oss-120b:free',
+  // Prefer a Requesty free-tier model; fallback to Requesty's smart router for availability.
+  // If the first model isn't available on your account/free tier, the fallback prevents hard failures.
+  AI_MODEL: ['deepseek/deepseek-r1:free', 'router'],
+  AI_MAX_RETRIES: 2,
 
   // Cal.com configuration
   CALCOM_USERNAME: 'Deteroid/deteroid-meeting',

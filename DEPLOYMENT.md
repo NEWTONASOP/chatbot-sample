@@ -23,6 +23,9 @@ After your first deployment, set your API keys:
 # Set OpenRouter API key
 npx wrangler secret put OPENROUTER_API_KEY
 
+# Set Requesty.ai API key
+npx wrangler secret put REQUESTY_API_KEY
+
 # Set Groq API key (Optional)
 npx wrangler secret put GROQ_API_KEY
 
@@ -76,7 +79,8 @@ travel-ai-chatbot/
 
 The Worker handles these routes:
 
-- `POST /v1/openrouter/chat/completions` - OpenRouter AI API proxy
+- `POST /v1/openrouter/chat/completions` - OpenRouter AI API proxy (legacy / optional)
+- `POST /v1/requesty/chat/completions` - Requesty.ai AI API proxy (recommended)
 - `POST /v1/groq/chat/completions` - Groq AI API proxy (Optional)
 - `GET /v1/pexels/search` - Pexels image search proxy
 - `GET /v1/calcom/slots` - Cal.com availability slots
