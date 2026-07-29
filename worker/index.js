@@ -64,6 +64,61 @@ async function handleAPIRoute(request, env, url) {
 }
 
 // Requesty API handler (OpenAI-compatible gateway)
+let requestyFreeModelCache = {
+  modelId: null,
+  fetchedAt: 0,
+};
+
+const REQUESTY_FREE_MODEL_CACHE_MS = 5 * 60 * 1000; // 5 minutes
+
+function isInvalidModelError(data) {
+  const msg =
+    data?.error?.message ||
+    data?.message ||
+    data?.error ||
+    '';
+  if (typeof msg !== 'string') return false;
+  return msg.toLowerCase().includes('invalid model');
+}
+
+async function getRequestyFreeModelId(env) {
+  const now = Date.now();
+  if (
+    requestyFreeModelCache.modelId &&
+    now - requestyFreeModelCache.fetchedAt < REQUESTY_FREE_MODEL_CACHE_MS
+  ) {
+    return requestyFreeModelCache.modelId;
+  }
+
+  const res = await fetch('https://router.requesty.ai/v1/models', {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${env.REQUESTY_API_KEY}`,
+    },
+  });
+
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  const models = data?.data || [];
+
+  const freeModels = models.filter((m) => {
+    const inputPrice = Number(m.input_price);
+    const outputPrice = Number(m.output_price);
+    // Requesty uses provider pricing metadata; free models should be 0/0.
+    return Number.isFinite(inputPrice) && Number.isFinite(outputPrice) && inputPrice === 0 && outputPrice === 0;
+  });
+
+  if (freeModels.length === 0) return null;
+
+  const best = freeModels
+    .slice()
+    .sort((a, b) => Number(b.context_window || 0) - Number(a.context_window || 0))[0];
+
+  requestyFreeModelCache = { modelId: best?.id || null, fetchedAt: now };
+  return requestyFreeModelCache.modelId;
+}
+
 async function handleRequestyAPI(request, env, corsHeaders) {
   if (request.method !== 'POST') {
     return new Response('Method not allowed', { status: 405, headers: corsHeaders });
@@ -76,16 +131,28 @@ async function handleRequestyAPI(request, env, corsHeaders) {
     });
   }
 
-  const body = await request.json();
+  let body = null;
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
 
-  const response = await fetch('https://router.requesty.ai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${env.REQUESTY_API_KEY}`,
-    },
-    body: JSON.stringify(body),
-  });
+  const callRequesty = async (reqBody) => {
+    return fetch('https://router.requesty.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${env.REQUESTY_API_KEY}`,
+      },
+      body: JSON.stringify(reqBody),
+    });
+  };
+
+  let response = await callRequesty(body);
 
   // If a client requests streaming, forward SSE through without parsing JSON.
   if (body && body.stream) {
@@ -103,6 +170,27 @@ async function handleRequestyAPI(request, env, corsHeaders) {
     data = await response.json();
   } catch {
     data = { error: `Requesty returned ${response.status}` };
+  }
+
+  // If the model name is invalid, retry using a known-valid free-tier model.
+  if (response.status === 400 && isInvalidModelError(data)) {
+    const freeModelId = await getRequestyFreeModelId(env);
+    if (freeModelId) {
+      const retryBody = { ...body, model: freeModelId };
+      response = await callRequesty(retryBody);
+
+      let retryData = null;
+      try {
+        retryData = await response.json();
+      } catch {
+        retryData = { error: `Requesty returned ${response.status}` };
+      }
+
+      return new Response(JSON.stringify(retryData), {
+        status: response.status,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
   }
 
   return new Response(JSON.stringify(data), {

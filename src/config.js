@@ -7,9 +7,9 @@ export const CONFIG = {
   CALCOM_BOOKINGS_URL: '/v1/calcom/bookings',
 
   // Model configuration
-  // Prefer a Requesty free-tier model; fallback to Requesty's smart router for availability.
-  // If the first model isn't available on your account/free tier, the fallback prevents hard failures.
-  AI_MODEL: ['deepseek/deepseek-r1:free', 'router'],
+  // Prefer a Requesty free-tier model.
+  // If it isn't available (or if a wrong model name is used), the Worker will auto-retry with a valid free model.
+  AI_MODEL: 'deepseek/deepseek-r1:free',
   AI_MAX_RETRIES: 2,
 
   // Cal.com configuration
