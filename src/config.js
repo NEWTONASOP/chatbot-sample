@@ -9,7 +9,7 @@ export const CONFIG = {
   // Model configuration
   // Prefer a Requesty free-tier model.
   // If it isn't available (or if a wrong model name is used), the Worker will auto-retry with a valid free model.
-  AI_MODEL: 'deepseek/deepseek-r1:free',
+  AI_MODEL: 'google/gemma-4-31b-it',
   AI_MAX_RETRIES: 2,
 
   // Cal.com configuration
