@@ -165,8 +165,10 @@ async function processToolCalls(responseMessage, messages) {
     ...toolMessages,
   ];
 
-  // Get final response from AI
-  const secondData = await callAIAPI(finalMessages, TOOLS, null);
+  // Get final response from AI.
+  // After tool execution, we don't need to send the tools schema again,
+  // which reduces prompt size and latency.
+  const secondData = await callAIAPI(finalMessages, null, null);
   let finalAiResponse = stripThinkingBlocks(secondData.choices[0]?.message?.content) || '';
 
   // Fallback if model returned empty content or still tries to call tools
@@ -230,6 +232,11 @@ export async function getAIResponse(userMessage, chatHistory) {
     role: 'user',
     content: userMessage,
   });
+
+  // Cap prompt size to keep latency low (and avoid the prompt getting slower over time).
+  if (chatHistory.length > CONFIG.MAX_CHAT_HISTORY_MESSAGES) {
+    chatHistory.splice(0, chatHistory.length - CONFIG.MAX_CHAT_HISTORY_MESSAGES);
+  }
 
   // Prepare messages for API
   const messages = [SYSTEM_PROMPT, ...chatHistory];

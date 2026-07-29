@@ -11,6 +11,8 @@ export const CONFIG = {
   // If it isn't available (or if a wrong model name is used), the Worker will auto-retry with a valid free model.
   AI_MODEL: 'google/gemma-4-31b-it',
   AI_MAX_RETRIES: 2,
+  // Keep the prompt small to reduce latency and cost.
+  MAX_CHAT_HISTORY_MESSAGES: 12,
 
   // Cal.com configuration
   CALCOM_USERNAME: 'Deteroid/deteroid-meeting',
@@ -20,7 +22,8 @@ export const CONFIG = {
 
   // AI configuration
   AI_TEMPERATURE: 1,
-  AI_MAX_TOKENS: 1024,
+  // Lower max tokens to reduce latency.
+  AI_MAX_TOKENS: 512,
   AI_TOP_P: 1,
 
   // UI configuration
